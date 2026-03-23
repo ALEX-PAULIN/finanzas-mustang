@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Finanzas Mustang</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+
+body{
+font-family:Arial;
+background:#111;
+color:white;
+padding:20px;
+}
+
+h1{
+text-align:center;
+}
+
+.card{
+background:#1c1c1e;
+padding:15px;
+border-radius:15px;
+margin-top:10px;
+}
+
+input,select,button{
+width:100%;
+padding:10px;
+margin-top:8px;
+border-radius:10px;
+border:none;
+}
+
+button{
+background:#ff3b30;
+color:white;
+font-weight:bold;
+}
+
+canvas{
+background:white;
+border-radius:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>🏎️ Finanzas Mustang</h1>
+
+<div class="card">
+
+<select id="tipo">
+
+<option>Ingreso</option>
+<option>Gasto</option>
+
+</select>
+
+<input id="concepto" placeholder="Concepto">
+
+<input id="monto" type="number" placeholder="Monto">
+
+<input type="file" accept="image/*" capture="environment">
+
+<button onclick="agregar()">Agregar</button>
+
+</div>
+
+<div class="card">
+
+<h3>Balance</h3>
+
+<p id="balance">$0</p>
+
+</div>
+
+<div class="card">
+
+<h3>Gráfica</h3>
+
+<canvas id="grafica"></canvas>
+
+</div>
+
+<script>
+
+let ingresos=0
+let gastos=0
+
+function agregar(){
+
+let tipo=document.getElementById("tipo").value
+let monto=parseFloat(document.getElementById("monto").value)
+
+if(tipo=="Ingreso"){
+ingresos+=monto
+}else{
+gastos+=monto
+}
+
+document.getElementById("balance").innerText="$"+(ingresos-gastos)
+
+grafica.data.datasets[0].data=[ingresos,gastos]
+grafica.update()
+
+}
+
+let ctx=document.getElementById("grafica")
+
+let grafica=new Chart(ctx,{
+
+type:'pie',
+
+data:{
+labels:["Ingresos","Gastos"],
+datasets:[{
+data:[0,0]
+}]
+}
+
+})
+
+</script>
+
+</body>
+</html>
