@@ -3,6 +3,7 @@
 <head>
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
 
 <title>Finanzas Mustang</title>
 
@@ -47,6 +48,11 @@ background:white;
 border-radius:10px;
 }
 
+img{
+border-radius:10px;
+margin-top:10px;
+}
+
 </style>
 
 </head>
@@ -58,17 +64,22 @@ border-radius:10px;
 <div class="card">
 
 <select id="tipo">
-
 <option>Ingreso</option>
 <option>Gasto</option>
-
 </select>
 
 <input id="concepto" placeholder="Concepto">
 
 <input id="monto" type="number" placeholder="Monto">
 
-<input type="file" accept="image/*" capture="environment">
+<!-- BOTÓN PARA TOMAR FOTO -->
+<button onclick="document.getElementById('foto').click()">
+📸 Tomar foto del ticket
+</button>
+
+<input id="foto" type="file" accept="image/*" capture="environment" style="display:none" onchange="tomarFoto(event)">
+
+<img id="preview" style="display:none; width:100%;">
 
 <button onclick="agregar()">Agregar</button>
 
@@ -77,7 +88,6 @@ border-radius:10px;
 <div class="card">
 
 <h3>Balance</h3>
-
 <p id="balance">$0</p>
 
 </div>
@@ -85,48 +95,75 @@ border-radius:10px;
 <div class="card">
 
 <h3>Gráfica</h3>
-
 <canvas id="grafica"></canvas>
 
 </div>
 
 <script>
 
-let ingresos=0
-let gastos=0
+let ingresos = 0;
+let gastos = 0;
+let fotoActual = null;
 
+// FOTO
+function tomarFoto(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function(e){
+    fotoActual = e.target.result;
+
+    const preview = document.getElementById("preview");
+    preview.src = fotoActual;
+    preview.style.display = "block";
+  };
+
+  reader.readAsDataURL(file);
+}
+
+// AGREGAR MOVIMIENTO
 function agregar(){
 
-let tipo=document.getElementById("tipo").value
-let monto=parseFloat(document.getElementById("monto").value)
+  let tipo = document.getElementById("tipo").value;
+  let monto = parseFloat(document.getElementById("monto").value);
 
-if(tipo=="Ingreso"){
-ingresos+=monto
-}else{
-gastos+=monto
+  if(isNaN(monto)){
+    alert("Ingresa un monto válido");
+    return;
+  }
+
+  if(tipo === "Ingreso"){
+    ingresos += monto;
+  }else{
+    gastos += monto;
+  }
+
+  document.getElementById("balance").innerText = "$" + (ingresos - gastos);
+
+  grafica.data.datasets[0].data = [ingresos, gastos];
+  grafica.update();
+
+  // LIMPIAR
+  document.getElementById("concepto").value = "";
+  document.getElementById("monto").value = "";
+  document.getElementById("preview").style.display = "none";
+  fotoActual = null;
 }
 
-document.getElementById("balance").innerText="$"+(ingresos-gastos)
+// GRÁFICA
+let ctx = document.getElementById("grafica");
 
-grafica.data.datasets[0].data=[ingresos,gastos]
-grafica.update()
-
-}
-
-let ctx=document.getElementById("grafica")
-
-let grafica=new Chart(ctx,{
-
-type:'pie',
-
-data:{
-labels:["Ingresos","Gastos"],
-datasets:[{
-data:[0,0]
-}]
-}
-
-})
+let grafica = new Chart(ctx, {
+  type:'pie',
+  data:{
+    labels:["Ingresos","Gastos"],
+    datasets:[{
+      data:[0,0]
+    }]
+  }
+});
 
 </script>
 
